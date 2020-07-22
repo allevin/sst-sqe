@@ -581,245 +581,245 @@ echo B4      $SST_SUITES_TO_RUN
          return
     fi
 
-    if [ $1 == "sstmainline_config_no_gem5" ] ; then
-        ${SST_TEST_SUITES}/testSuite_Ariel.sh
-    fi
-
-    #
-    #  Run only GPU test only
-    #
-    if [[ ($1 == "sstmainline_config_linux_with_cuda") || ($1 == "sstmainline_config_linux_with_cuda_no_mpi") ]]
-    then
-        ${SST_TEST_SUITES}/testSuite_gpgpu.sh
-        return
-    fi
-
-    #
-    #  Run only Streams test only
-    #
-    if [ $1 == "sstmainline_config_stream" ]
-    then
-        ${SST_TEST_SUITES}/testSuite_stream.sh
-        return
-    fi
-
-    #
-    #  Run only openMP
-    #
-    if [ $1 == "sstmainline_config_openmp" ]
-    then
-        ${SST_TEST_SUITES}/testSuite_Sweep_openMP.sh
-        return
-    fi
-
-    #
-    #  Run only dirSweep3Cache
-    #
-    if [ $1 == "sstmainline_config_dir3cache" ]
-    then
-        ${SST_TEST_SUITES}/testSuite_dir3LevelSweep.sh
-        return
-    fi
-
-    #
-    #  Run only diropenMP
-    #
-    if [ $1 == "sstmainline_config_diropenmp" ]
-    then
-        ${SST_TEST_SUITES}/testSuite_dirSweep.sh
-        return
-    fi
-
-    #
-    #  Run only dirSweepB
-    #
-    if [ $1 == "sstmainline_config_diropenmpB" ]
-    then
-        ${SST_TEST_SUITES}/testSuite_dirSweepB.sh
-        return
-    fi
-
-    #
-    #  Run only dirSweepI
-    #
-    if [ $1 == "sstmainline_config_diropenmpI" ]
-    then
-        ${SST_TEST_SUITES}/testSuite_dirSweepI.sh
-        return
-    fi
-
-    #
-    #  Run only dir Non Cacheable
-    #
-    if [ $1 == "sstmainline_config_dirnoncacheable" ]
-    then
-        ${SST_TEST_SUITES}/testSuite_dirnoncacheable_openMP.sh
-        return
-    fi
-
-    #
-    #  Run only openMP and memHierarchy
-    #
-    if [ $1 == "sstmainline_config_memH_only" ]
-    then
-        ${SST_TEST_SUITES}/testSuite_openMP.sh
-        ${SST_TEST_SUITES}/testSuite_memHierarchy_bin.sh
-        return
-    fi
-
-    #
-    #   Test for the new memH via Ariel testing
-    #
-    #   With optional split into two tests
-    #
-    if [ $1 == "sstmainline_config_memH_Ariel" ]
-    then
-        GROUP=0
-        if [[ ${SST_SWEEP_SPLIT:+isSet} == isSet ]] ; then
-            GROUP=${SST_SWEEP_SPLIT}
-        fi
-        if [ $GROUP != 2 ] ; then
-#                                                               GROUP ONE
-            ${SST_TEST_SUITES}/testSuite_openMP.sh              #     9
-            ${SST_TEST_SUITES}/testSuite_diropenMP.sh           #     9
-            ${SST_TEST_SUITES}/testSuite_dirSweepB.sh           #    16
-            ${SST_TEST_SUITES}/testSuite_Sweep_openMP.sh        #  1024
-            ${SST_TEST_SUITES}/testSuite_dirSweep.sh            #  1152
-        fi
-        if [ $GROUP == 1 ] ; then
-            return
-        fi
-#                                                               GROUP TWO
-        ${SST_TEST_SUITES}/testSuite_dirnoncacheable_openMP.sh  #     8
-        ${SST_TEST_SUITES}/testSuite_noncacheable_openMP.sh     #     8
-        ${SST_TEST_SUITES}/testSuite_dirSweepI.sh               #   384
-        ${SST_TEST_SUITES}/testSuite_dir3LevelSweep.sh          #  1152
-        return
-    fi
-
-     #
-     #   Suites that used MemHierarchy, but not openMP
-     #
-
-    if [ $1 == "sstmainline_config_memH_wo_openMP" ]
-    then
-        if [[ $SST_ROOT == *Ariel* ]] ; then
-            pushd ${SST_TEST_SUITES}
-            ln -s ${SST_TEST_SUITES}/testSuite_Ariel.sh testSuite_Ariel_extra.sh
-            ${SST_TEST_SUITES}/testSuite_Ariel_extra.sh
-            popd
-        fi
-        export SST_BUILD_PROSPERO_TRACE_FILE=1
-        pushd ${SST_TEST_SUITES}
-          ln -s ${SST_TEST_SUITES}/testSuite_prospero.sh testSuite_prospero_pin.sh
-          ${SST_TEST_SUITES}/testSuite_prospero_pin.sh
-          unset SST_BUILD_PROSPERO_TRACE_FILE
-        popd
-        ${SST_TEST_SUITES}/testSuite_SiriusZodiacTrace.sh
-        ${SST_TEST_SUITES}/testSuite_embernightly.sh
-        ${SST_TEST_SUITES}/testSuite_BadPort.sh
-        ${SST_TEST_SUITES}/testSuite_memHierarchy_sdl.sh
-        ${SST_TEST_SUITES}/testSuite_memHA.sh
-        ${SST_TEST_SUITES}/testSuite_memHSieve.sh
-        ${SST_TEST_SUITES}/testSuite_CramSim.sh
-        ${SST_TEST_SUITES}/testSuite_hybridsim.sh
-        ${SST_TEST_SUITES}/testSuite_miranda.sh
-        ${SST_TEST_SUITES}/testSuite_cassini_prefetch.sh
-        ${SST_TEST_SUITES}/testSuite_prospero.sh
-        ${SST_TEST_SUITES}/testSuite_Ariel.sh
-        return
-    fi
-
-    PATH=${PATH}:${SST_ROOT}/../sqe/test/utilities
-    if [ $1 == "sstmainline_config_develautotester_linux" ] ; then
-        $SST_ROOT/../sqe/test/utilities/invokeSuite memHierarchy_sdl 2 2 all autotest_multirank_plus_multithread_2x2
-        invokeSuite ESshmem     2 2 ESshmem=1:106  autotest_multirank_plus_multithread
-        invokeSuite merlin  2 2 dragon_128 autotest_multirank_plus_multithread
-        invokeSuite CramSim 2 2 4_         autotest_multirank_plus_multithread
-        invokeSuite memHA   2 2 Distrib    autotest_multirank_plus_multithread
-    fi
-
-    if [ $1 == "sstmainline_config_develautotester_mac" ] ; then
-        $SST_ROOT/../sqe/test/utilities/invokeSuite memHierarchy_sdl 2 2 all autotest_multirank_plus_multithread_2x2
-        invokeSuite ESshmem     2 2 ESshmem=1:106  autotest_multirank_plus_multithread
-        invokeSuite merlin  2 2 dragon_128 autotest_multirank_plus_multithread
-        invokeSuite CramSim 2 2 4_         autotest_multirank_plus_multithread
-        invokeSuite memHA   2 2 Distrib    autotest_multirank_plus_multithread
-    fi
-
+###    if [ $1 == "sstmainline_config_no_gem5" ] ; then
+###        ${SST_TEST_SUITES}/testSuite_Ariel.sh
+###    fi
+###
+###    #
+###    #  Run only GPU test only
+###    #
+###    if [[ ($1 == "sstmainline_config_linux_with_cuda") || ($1 == "sstmainline_config_linux_with_cuda_no_mpi") ]]
+###    then
+###        ${SST_TEST_SUITES}/testSuite_gpgpu.sh
+###        return
+###    fi
+###
+###    #
+###    #  Run only Streams test only
+###    #
+###    if [ $1 == "sstmainline_config_stream" ]
+###    then
+###        ${SST_TEST_SUITES}/testSuite_stream.sh
+###        return
+###    fi
+###
+###    #
+###    #  Run only openMP
+###    #
+###    if [ $1 == "sstmainline_config_openmp" ]
+###    then
+###        ${SST_TEST_SUITES}/testSuite_Sweep_openMP.sh
+###        return
+###    fi
+###
+###    #
+###    #  Run only dirSweep3Cache
+###    #
+###    if [ $1 == "sstmainline_config_dir3cache" ]
+###    then
+###        ${SST_TEST_SUITES}/testSuite_dir3LevelSweep.sh
+###        return
+###    fi
+###
+###    #
+###    #  Run only diropenMP
+###    #
+###    if [ $1 == "sstmainline_config_diropenmp" ]
+###    then
+###        ${SST_TEST_SUITES}/testSuite_dirSweep.sh
+###        return
+###    fi
+###
+###    #
+###    #  Run only dirSweepB
+###    #
+###    if [ $1 == "sstmainline_config_diropenmpB" ]
+###    then
+###        ${SST_TEST_SUITES}/testSuite_dirSweepB.sh
+###        return
+###    fi
+###
+###    #
+###    #  Run only dirSweepI
+###    #
+###    if [ $1 == "sstmainline_config_diropenmpI" ]
+###    then
+###        ${SST_TEST_SUITES}/testSuite_dirSweepI.sh
+###        return
+###    fi
+###
+###    #
+###    #  Run only dir Non Cacheable
+###    #
+###    if [ $1 == "sstmainline_config_dirnoncacheable" ]
+###    then
+###        ${SST_TEST_SUITES}/testSuite_dirnoncacheable_openMP.sh
+###        return
+###    fi
+###
+###    #
+###    #  Run only openMP and memHierarchy
+###    #
+###    if [ $1 == "sstmainline_config_memH_only" ]
+###    then
+###        ${SST_TEST_SUITES}/testSuite_openMP.sh
+###        ${SST_TEST_SUITES}/testSuite_memHierarchy_bin.sh
+###        return
+###    fi
+###
+###    #
+###    #   Test for the new memH via Ariel testing
+###    #
+###    #   With optional split into two tests
+###    #
+###    if [ $1 == "sstmainline_config_memH_Ariel" ]
+###    then
+###        GROUP=0
+###        if [[ ${SST_SWEEP_SPLIT:+isSet} == isSet ]] ; then
+###            GROUP=${SST_SWEEP_SPLIT}
+###        fi
+###        if [ $GROUP != 2 ] ; then
+####                                                               GROUP ONE
+###            ${SST_TEST_SUITES}/testSuite_openMP.sh              #     9
+###            ${SST_TEST_SUITES}/testSuite_diropenMP.sh           #     9
+###            ${SST_TEST_SUITES}/testSuite_dirSweepB.sh           #    16
+###            ${SST_TEST_SUITES}/testSuite_Sweep_openMP.sh        #  1024
+###            ${SST_TEST_SUITES}/testSuite_dirSweep.sh            #  1152
+###        fi
+###        if [ $GROUP == 1 ] ; then
+###            return
+###        fi
+####                                                               GROUP TWO
+###        ${SST_TEST_SUITES}/testSuite_dirnoncacheable_openMP.sh  #     8
+###        ${SST_TEST_SUITES}/testSuite_noncacheable_openMP.sh     #     8
+###        ${SST_TEST_SUITES}/testSuite_dirSweepI.sh               #   384
+###        ${SST_TEST_SUITES}/testSuite_dir3LevelSweep.sh          #  1152
+###        return
+###    fi
+###
+###     #
+###     #   Suites that used MemHierarchy, but not openMP
+###     #
+###
+###    if [ $1 == "sstmainline_config_memH_wo_openMP" ]
+###    then
+###        if [[ $SST_ROOT == *Ariel* ]] ; then
+###            pushd ${SST_TEST_SUITES}
+###            ln -s ${SST_TEST_SUITES}/testSuite_Ariel.sh testSuite_Ariel_extra.sh
+###            ${SST_TEST_SUITES}/testSuite_Ariel_extra.sh
+###            popd
+###        fi
+###        export SST_BUILD_PROSPERO_TRACE_FILE=1
+###        pushd ${SST_TEST_SUITES}
+###          ln -s ${SST_TEST_SUITES}/testSuite_prospero.sh testSuite_prospero_pin.sh
+###          ${SST_TEST_SUITES}/testSuite_prospero_pin.sh
+###          unset SST_BUILD_PROSPERO_TRACE_FILE
+###        popd
+###        ${SST_TEST_SUITES}/testSuite_SiriusZodiacTrace.sh
+###        ${SST_TEST_SUITES}/testSuite_embernightly.sh
+###        ${SST_TEST_SUITES}/testSuite_BadPort.sh
+###        ${SST_TEST_SUITES}/testSuite_memHierarchy_sdl.sh
+###        ${SST_TEST_SUITES}/testSuite_memHA.sh
+###        ${SST_TEST_SUITES}/testSuite_memHSieve.sh
+###        ${SST_TEST_SUITES}/testSuite_CramSim.sh
+###        ${SST_TEST_SUITES}/testSuite_hybridsim.sh
+###        ${SST_TEST_SUITES}/testSuite_miranda.sh
+###        ${SST_TEST_SUITES}/testSuite_cassini_prefetch.sh
+###        ${SST_TEST_SUITES}/testSuite_prospero.sh
+###        ${SST_TEST_SUITES}/testSuite_Ariel.sh
+###        return
+###    fi
+###
+###    PATH=${PATH}:${SST_ROOT}/../sqe/test/utilities
+###    if [ $1 == "sstmainline_config_develautotester_linux" ] ; then
+###        $SST_ROOT/../sqe/test/utilities/invokeSuite memHierarchy_sdl 2 2 all autotest_multirank_plus_multithread_2x2
+###        invokeSuite ESshmem     2 2 ESshmem=1:106  autotest_multirank_plus_multithread
+###        invokeSuite merlin  2 2 dragon_128 autotest_multirank_plus_multithread
+###        invokeSuite CramSim 2 2 4_         autotest_multirank_plus_multithread
+###        invokeSuite memHA   2 2 Distrib    autotest_multirank_plus_multithread
+###    fi
+###
+###    if [ $1 == "sstmainline_config_develautotester_mac" ] ; then
+###        $SST_ROOT/../sqe/test/utilities/invokeSuite memHierarchy_sdl 2 2 all autotest_multirank_plus_multithread_2x2
+###        invokeSuite ESshmem     2 2 ESshmem=1:106  autotest_multirank_plus_multithread
+###        invokeSuite merlin  2 2 dragon_128 autotest_multirank_plus_multithread
+###        invokeSuite CramSim 2 2 4_         autotest_multirank_plus_multithread
+###        invokeSuite memHA   2 2 Distrib    autotest_multirank_plus_multithread
+###    fi
+###
     ${SST_TEST_SUITES}/testSuite_Ariel.sh
-    ${SST_TEST_SUITES}/testSuite_juno.sh
-    ${SST_TEST_SUITES}/testSuite_Samba.sh
-    ${SST_TEST_SUITES}/testSuite_Messier.sh
-    ${SST_TEST_SUITES}/testSuite_CramSim.sh
-    ${SST_TEST_SUITES}/testSuite_hybridsim.sh
-    ${SST_TEST_SUITES}/testSuite_SiriusZodiacTrace.sh
-    ${SST_TEST_SUITES}/testSuite_memHierarchy_sdl.sh
-    ${SST_TEST_SUITES}/testSuite_memHSieve.sh
-    ${SST_TEST_SUITES}/testSuite_kingsley.sh
-    ${SST_TEST_SUITES}/testSuite_sst_GNA.sh
-    ${SST_TEST_SUITES}/testSuite_shogun.sh
-
-
-    ${SST_TEST_SUITES}/testSuite_simpleComponent.sh
-    ${SST_TEST_SUITES}/testSuite_sstexternalelement.sh
-    ${SST_TEST_SUITES}/testSuite_sst_info_test.sh
-    ${SST_TEST_SUITES}/testSuite_simpleLookupTableComponent.sh
-    ${SST_TEST_SUITES}/testSuite_cacheTracer.sh
-    ${SST_TEST_SUITES}/testSuite_miranda.sh
-    ${SST_TEST_SUITES}/testSuite_BadPort.sh
-    ${SST_TEST_SUITES}/testSuite_scheduler.sh
-    ${SST_TEST_SUITES}/testSuite_scheduler_DetailedNetwork.sh
-
-    # Add other test suites here, i.e.
-    # ${SST_TEST_SUITES}/testSuite_moe.sh
-    # ${SST_TEST_SUITES}/testSuite_larry.sh
-    # ${SST_TEST_SUITES}/testSuite_curly.sh
-    # ${SST_TEST_SUITES}/testSuite_shemp.sh
-    # etc.
-
-    ${SST_TEST_SUITES}/testSuite_merlin.sh
-    ${SST_TEST_SUITES}/testSuite_qos.sh
-    ${SST_TEST_SUITES}/testSuite_embernightly.sh
-
-    ${SST_TEST_SUITES}/testSuite_simpleSimulation_CarWash.sh
-    ${SST_TEST_SUITES}/testSuite_simpleDistribComponent.sh
-
-    # Only run EmberSweep with valgrind with explict request.
-    #    Valgrind on 180 test Suite takes 15 hours. (Aug. 2016)
-    #    memHA add to the separate list Dec. 2017
-    if [[ $1 != "sstmainline_config_valgrind" ]] ; then
-       ${SST_TEST_SUITES}/testSuite_memHA.sh
-       ${SST_TEST_SUITES}/testSuite_EmberSweep.sh
-       ${SST_TEST_SUITES}/testSuite_ESshmem.sh
-    fi
-
-    if [[ (`echo $1 | grep no_mpi` == "") ]] && [[ $1 != "sstmainline_config_valgrind" ]] ; then
-        #  Zoltan test requires MPI to execute.
-        #  sstmainline_config_no_gem5 deliberately omits Zoltan, so must skip test.
-        #  Valgrind test as inserted here is incompatible with partitioning tests.
-        if [ $1 != "sstmainline_config_linux_with_ariel" ] ; then
-            ${SST_TEST_SUITES}/testSuite_zoltan.sh
-            ${SST_TEST_SUITES}/testSuite_partitioner.sh
-        fi
-    fi
-    ${SST_TEST_SUITES}/testSuite_simpleRNGComponent.sh
-    ${SST_TEST_SUITES}/testSuite_simpleStatisticsComponent.sh
-
-    if [[ ${INTEL_PIN_DIRECTORY:+isSet} == isSet ]] ; then
-        export SST_BUILD_PROSPERO_TRACE_FILE=1
-        pushd ${SST_TEST_SUITES}
-          ln -s ${SST_TEST_SUITES}/testSuite_prospero.sh testSuite_prospero_pin.sh
-          ${SST_TEST_SUITES}/testSuite_prospero_pin.sh
-          unset SST_BUILD_PROSPERO_TRACE_FILE
-        popd
-    fi
-    ${SST_TEST_SUITES}/testSuite_prospero.sh
-#
-    ${SST_TEST_SUITES}/testSuite_check_maxrss.sh
-    ${SST_TEST_SUITES}/testSuite_cassini_prefetch.sh
-    ${SST_TEST_SUITES}/testSuite_simpleMessageGeneratorComponent.sh
-    ${SST_TEST_SUITES}/testSuite_VaultSim.sh
+###    ${SST_TEST_SUITES}/testSuite_juno.sh
+###    ${SST_TEST_SUITES}/testSuite_Samba.sh
+###    ${SST_TEST_SUITES}/testSuite_Messier.sh
+###    ${SST_TEST_SUITES}/testSuite_CramSim.sh
+###    ${SST_TEST_SUITES}/testSuite_hybridsim.sh
+###    ${SST_TEST_SUITES}/testSuite_SiriusZodiacTrace.sh
+###    ${SST_TEST_SUITES}/testSuite_memHierarchy_sdl.sh
+###    ${SST_TEST_SUITES}/testSuite_memHSieve.sh
+###    ${SST_TEST_SUITES}/testSuite_kingsley.sh
+###    ${SST_TEST_SUITES}/testSuite_sst_GNA.sh
+###    ${SST_TEST_SUITES}/testSuite_shogun.sh
+###
+###
+###    ${SST_TEST_SUITES}/testSuite_simpleComponent.sh
+###    ${SST_TEST_SUITES}/testSuite_sstexternalelement.sh
+###    ${SST_TEST_SUITES}/testSuite_sst_info_test.sh
+###    ${SST_TEST_SUITES}/testSuite_simpleLookupTableComponent.sh
+###    ${SST_TEST_SUITES}/testSuite_cacheTracer.sh
+###    ${SST_TEST_SUITES}/testSuite_miranda.sh
+###    ${SST_TEST_SUITES}/testSuite_BadPort.sh
+###    ${SST_TEST_SUITES}/testSuite_scheduler.sh
+###    ${SST_TEST_SUITES}/testSuite_scheduler_DetailedNetwork.sh
+###
+###    # Add other test suites here, i.e.
+###    # ${SST_TEST_SUITES}/testSuite_moe.sh
+###    # ${SST_TEST_SUITES}/testSuite_larry.sh
+###    # ${SST_TEST_SUITES}/testSuite_curly.sh
+###    # ${SST_TEST_SUITES}/testSuite_shemp.sh
+###    # etc.
+###
+###    ${SST_TEST_SUITES}/testSuite_merlin.sh
+###    ${SST_TEST_SUITES}/testSuite_qos.sh
+###    ${SST_TEST_SUITES}/testSuite_embernightly.sh
+###
+###    ${SST_TEST_SUITES}/testSuite_simpleSimulation_CarWash.sh
+###    ${SST_TEST_SUITES}/testSuite_simpleDistribComponent.sh
+###
+###    # Only run EmberSweep with valgrind with explict request.
+###    #    Valgrind on 180 test Suite takes 15 hours. (Aug. 2016)
+###    #    memHA add to the separate list Dec. 2017
+###    if [[ $1 != "sstmainline_config_valgrind" ]] ; then
+###       ${SST_TEST_SUITES}/testSuite_memHA.sh
+###       ${SST_TEST_SUITES}/testSuite_EmberSweep.sh
+###       ${SST_TEST_SUITES}/testSuite_ESshmem.sh
+###    fi
+###
+###    if [[ (`echo $1 | grep no_mpi` == "") ]] && [[ $1 != "sstmainline_config_valgrind" ]] ; then
+###        #  Zoltan test requires MPI to execute.
+###        #  sstmainline_config_no_gem5 deliberately omits Zoltan, so must skip test.
+###        #  Valgrind test as inserted here is incompatible with partitioning tests.
+###        if [ $1 != "sstmainline_config_linux_with_ariel" ] ; then
+###            ${SST_TEST_SUITES}/testSuite_zoltan.sh
+###            ${SST_TEST_SUITES}/testSuite_partitioner.sh
+###        fi
+###    fi
+###    ${SST_TEST_SUITES}/testSuite_simpleRNGComponent.sh
+###    ${SST_TEST_SUITES}/testSuite_simpleStatisticsComponent.sh
+###
+###    if [[ ${INTEL_PIN_DIRECTORY:+isSet} == isSet ]] ; then
+###        export SST_BUILD_PROSPERO_TRACE_FILE=1
+###        pushd ${SST_TEST_SUITES}
+###          ln -s ${SST_TEST_SUITES}/testSuite_prospero.sh testSuite_prospero_pin.sh
+###          ${SST_TEST_SUITES}/testSuite_prospero_pin.sh
+###          unset SST_BUILD_PROSPERO_TRACE_FILE
+###        popd
+###    fi
+###    ${SST_TEST_SUITES}/testSuite_prospero.sh
+####
+###    ${SST_TEST_SUITES}/testSuite_check_maxrss.sh
+###    ${SST_TEST_SUITES}/testSuite_cassini_prefetch.sh
+###    ${SST_TEST_SUITES}/testSuite_simpleMessageGeneratorComponent.sh
+###    ${SST_TEST_SUITES}/testSuite_VaultSim.sh
 
     # Purge SST installation
     if [[ ${SST_RETAIN_BIN:+isSet} != isSet ]]
