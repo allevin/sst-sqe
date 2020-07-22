@@ -821,11 +821,11 @@ echo B4      $SST_SUITES_TO_RUN
 ###    ${SST_TEST_SUITES}/testSuite_simpleMessageGeneratorComponent.sh
 ###    ${SST_TEST_SUITES}/testSuite_VaultSim.sh
 
-    # Purge SST installation
-    if [[ ${SST_RETAIN_BIN:+isSet} != isSet ]]
-    then
-        rm -Rf ${SST_INSTALL}
-    fi
+######    # Purge SST installation
+######    if [[ ${SST_RETAIN_BIN:+isSet} != isSet ]]
+######    then
+######        rm -Rf ${SST_INSTALL}
+######    fi
 
 }
 ###-END-DOTESTS
