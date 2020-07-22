@@ -827,6 +827,12 @@ echo B4      $SST_SUITES_TO_RUN
 ######        rm -Rf ${SST_INSTALL}
 ######    fi
 
+    echo "*** NEW TEST FRAMEWORKS RUNNING INSIDE OF BAMBOO ***"
+    cd $SST_ROOT
+    sst-test-core
+    sst-test-elements
+
+
 }
 ###-END-DOTESTS
 
